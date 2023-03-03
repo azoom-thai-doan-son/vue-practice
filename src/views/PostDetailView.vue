@@ -30,17 +30,19 @@ export default {
     };
   },
   computed: {
-    currentPosts: get('currentPosts'),
+    allPosts: get('allPosts'),
     currentPost() {
-      return this.currentPosts.find(
+      return this.allPosts.find(
         (post) => post.id === +this.$route.params.postId
       );
     },
   },
   async created() {
+    console.log(this.currentPost);
     const comments = await ky
-      .get(`posts/${this.currentPost.id}/comments`)
+      .get(`posts/${this.currentPost?.id}/comments`)
       .json();
+    console.log(comments);
     this.comments = comments;
   },
 };

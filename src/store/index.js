@@ -13,7 +13,10 @@ const state = {
 }
 
 const mutations = {
-  ...make.mutations(state)
+  ...make.mutations(state),
+  ADD_POST(state, newPost) {
+    state.allPosts.push(newPost)
+  }
 }
 
 const actions = {
@@ -33,6 +36,9 @@ const actions = {
     })
     commit('SET_CURRENT_POSTS', currentPosts)
 
+  },
+  async addPost(_, newPost) {
+    return await ky.post('posts', { json: newPost }).json();
   }
 }
 
