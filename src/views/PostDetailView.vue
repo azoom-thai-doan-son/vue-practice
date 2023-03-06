@@ -1,5 +1,10 @@
 <template lang="">
   <div class="post-detail-page">
+    <Loading :active="isLoading" :is-full-page="true"></Loading>
+    <button class="backlink" @click="$router.push({ name: 'Post' })">
+      <img src="@/assets/images/back-icon.svg" width="24" height="24" alt="" />
+      <h2>Go back</h2>
+    </button>
     <PostCard :post="currentPost" />
     <v-divider dark></v-divider>
     <div class="comment-section">
@@ -13,7 +18,7 @@
   </div>
 </template>
 <script>
-import { get } from 'vuex-pathify';
+import { get, commit } from 'vuex-pathify';
 import PostCard from '@/components/PostCard.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import ky from '@/plugins/ky';
@@ -31,6 +36,7 @@ export default {
   },
   computed: {
     allPosts: get('allPosts'),
+    isLoading: get('isLoading'),
     currentPost() {
       return this.allPosts.find(
         (post) => post.id === +this.$route.params.postId
@@ -38,12 +44,12 @@ export default {
     },
   },
   async created() {
-    console.log(this.currentPost);
+    commit('SET_IS_LOADING', true);
     const comments = await ky
       .get(`posts/${this.currentPost?.id}/comments`)
       .json();
-    console.log(comments);
     this.comments = comments;
+    commit('SET_IS_LOADING', false);
   },
 };
 </script>
@@ -55,7 +61,11 @@ export default {
   min-height: 100vh;
   padding: 16px 32px;
   min-width: 555px;
-
+  > .backlink {
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+  }
   > .comment-section {
     width: 100%;
     margin-top: 32px;

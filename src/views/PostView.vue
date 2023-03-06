@@ -1,24 +1,52 @@
 <template lang="">
   <div class="post-page">
+    <Loading :active="isLoading" :is-full-page="true"></Loading>
     <div class="head">
       <button class="button -primary" @click="onClickNewPost">New Post</button>
+      <div class="search-form">
+        <v-text-field
+          clearable
+          placeholder="Find a post..."
+          v-model.trim="search"
+          outlined
+        ></v-text-field>
+        <v-select
+          :items="authors"
+          label="Select author"
+          v-model="authorId"
+          class="author"
+          outlined
+        ></v-select>
+        <v-btn @click="onSearch">Search</v-btn>
+      </div>
     </div>
-    <div class="body">
-      <PostCard v-for="post in currentPosts" ::key="post.id" :post="post" />
+
+    <div v-if="!currentPosts.length && !isLoading">
+      <h1>
+        Oops! No Posts Found. Click
+        <span class="get-btn" @click="getAllPosts">here </span> to get all
+        posts.
+      </h1>
     </div>
-    <div class="footer">
-      <v-pagination
-        :length="pageTotal"
-        v-model="page"
-        @input="onChangePage"
-        color="#323232"
-      ></v-pagination>
-    </div>
+    <template v-else>
+      <div class="body">
+        <PostCard v-for="post in currentPosts" :key="post.id" :post="post" />
+      </div>
+      <div class="footer">
+        <v-pagination
+          v-if="currentPosts.length"
+          :length="pageTotal"
+          v-model="page"
+          @input="onChangePage"
+          color="#323232"
+        ></v-pagination>
+      </div>
+    </template>
   </div>
 </template>
 <script>
 import PostCard from '@/components/PostCard.vue';
-import { dispatch, get } from 'vuex-pathify';
+import { dispatch, get, commit } from 'vuex-pathify';
 import { DEFAULT_LIMIT } from '@/utils/constants';
 
 export default {
@@ -27,26 +55,49 @@ export default {
   data() {
     return {
       page: 1,
+      search: '',
+      authorId: null,
     };
   },
   computed: {
     currentPosts: get('currentPosts'),
+    authors: get('authors'),
     allPosts: get('allPosts'),
     pageTotal() {
       return Math.ceil(this.allPosts.length / DEFAULT_LIMIT);
     },
+    isLoading: get('isLoading'),
   },
   methods: {
     async onChangePage() {
+      commit('SET_IS_LOADING', true);
       await dispatch('getCurrentPosts', this.page);
-      console.log(this.currentPosts);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      commit('SET_IS_LOADING', false);
     },
     onClickNewPost() {
       this.$router.push({ name: 'PostCreate' });
     },
+    async onSearch() {
+      const query = { search: this.search, authorId: this.authorId };
+      commit('SET_IS_LOADING', true);
+      await dispatch('searchPosts', query);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      commit('SET_IS_LOADING', false);
+    },
+    async getAllPosts() {
+      commit('SET_IS_LOADING', true);
+      await dispatch('getAllPosts');
+      await dispatch('getCurrentPosts', this.page);
+      commit('SET_IS_LOADING', false);
+    },
   },
   async created() {
+    commit('SET_IS_LOADING', true);
+    await dispatch('getAllPosts');
     await dispatch('getCurrentPosts', this.page);
+    await dispatch('getAuthors');
+    commit('SET_IS_LOADING', false);
   },
 };
 </script>
@@ -55,6 +106,7 @@ export default {
   padding: 16px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
 
   > .head {
@@ -62,8 +114,11 @@ export default {
     top: -4px;
     z-index: 10;
     width: 100%;
+    padding-bottom: 12px;
+
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     background-color: #ddd0c8;
   }
   > .body {
@@ -77,10 +132,15 @@ export default {
     margin: 0 auto;
   }
 }
-
 //Colours
 $red: #e74c3c;
 $blue: #3498db;
+.get-btn {
+  cursor: pointer;
+  &:hover {
+    color: $blue;
+  }
+}
 
 .button {
   appearance: none;
@@ -117,6 +177,21 @@ $blue: #3498db;
   &:hover {
     box-shadow: 0 0 10px 0 $blue inset, 0 0 20px 0px $blue;
     color: black;
+  }
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  > .author {
+    width: 180px;
+  }
+  ::v-deep .v-input__slot {
+    margin: 0;
+  }
+  ::v-deep .v-text-field__details {
+    display: none;
   }
 }
 </style>

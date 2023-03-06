@@ -3,7 +3,7 @@
     :to="{ name: 'PostDetail', params: { postId: post?.id } }"
     class="post-card"
   >
-    <v-card outline shaped max-width="374" min-width="200">
+    <v-card outline shaped width="450">
       <div class="header">
         <img
           src="@/assets/images/avatar.svg"
@@ -28,15 +28,14 @@
 export default {
   name: 'PostCard',
   props: ['post'],
-  beforeDestroy() {
-    console.log(this.post);
-  },
 };
 </script>
 <style lang="scss" scoped>
 .post-card {
   text-decoration: none;
   transition: all 0.4s;
+  display: flex;
+  justify-content: center;
   &:hover {
     transform: scale(1.03);
   }
