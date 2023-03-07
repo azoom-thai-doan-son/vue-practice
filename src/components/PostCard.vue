@@ -3,7 +3,7 @@
     :to="{ name: 'PostDetail', params: { postId: post?.id } }"
     class="post-card"
   >
-    <v-card outline shaped width="450">
+    <v-card outline width="450">
       <div class="header">
         <img
           src="@/assets/images/avatar.svg"
@@ -38,6 +38,10 @@ export default {
   justify-content: center;
   &:hover {
     transform: scale(1.03);
+  }
+  .v-card {
+    border-radius: 24px;
+    margin: 12px;
   }
 }
 .header {

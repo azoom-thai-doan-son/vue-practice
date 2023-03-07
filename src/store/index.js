@@ -11,6 +11,8 @@ const state = {
   allPosts: [],
   currentPosts: [],
   authors: [],
+  userInfo: {
+  },
   isLoading: false
 }
 

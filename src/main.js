@@ -7,10 +7,10 @@ import Vuelidate from 'vuelidate'
 import Loading from 'vue-loading-overlay';
 import './assets/styles/main.scss'
 import 'vue-loading-overlay/dist/vue-loading.css';
+import Notifications from 'vue-notification'
 
-Vue.use(Loading, {
-  color: 'blue'
-});
+Vue.use(Notifications)
+Vue.use(Loading);
 Vue.use(Vuelidate)
 
 Vue.component('Loading', Loading)
